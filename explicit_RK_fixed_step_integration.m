@@ -47,11 +47,13 @@ end
 %num_evals: A count of the number of times that you called
 % rate_func_in when computing the next step
 function [XB, num_evals] = explicit_RK_step(rate_func_in,t,XA,h,BT_struct)
-    k = zeros(1, length(BT_struct.C));
+    k = zeros(1, length(BT_struct.C))
     sum = 0;
     num_evals = 0;
 
     for i = 1:length(BT_struct.C)
+        disp(k(1))
+        
         t_input = t + BT_struct.C(i) * h;
         X_input = 0;       
         for j = 1:i-1
@@ -59,7 +61,7 @@ function [XB, num_evals] = explicit_RK_step(rate_func_in,t,XA,h,BT_struct)
         end
         X_input = XA + h*X_input;
 
-        k(i) = rate_func_in(t_input, X_input);
+        k(1,i) = rate_func_in(t_input, X_input);
         num_evals = num_evals + 1;
 
         sum = sum + BT_struct.B(i) * k(i);

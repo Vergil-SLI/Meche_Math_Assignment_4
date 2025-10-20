@@ -50,9 +50,10 @@ function usage_example()
     BT_struct.A = [0]; % matrix of a_{ij} values
     BT_struct.B = [1];% vector of b_i values
     BT_struct.C = [0]; % vector of c_i values
-    
-    rate_func_in = @(V) gravity_rate_func(0,V,orbit_params);
-    [t_list,X_list,h_avg, num_evals] = explicit_RK_fixed_step_integration(rate_func_in,[0,30],V0,h_ref,BT_struct);
+
+    rate_func_in = @(t, V) gravity_rate_func(t,V, orbit_params);
+
+    [t_list,V_list,h_avg, num_evals] = explicit_RK_fixed_step_integration(rate_func_in,[0,30],V0,h_ref,BT_struct);
 
     
     % plot actual solution
