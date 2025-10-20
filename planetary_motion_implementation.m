@@ -53,40 +53,44 @@ function usage_example()
     plot(V_list(:,1),V_list(:,2),'k');
 
     % RK approximation calculations________________________________________
-    % forward euler
-    h_ref = 0.01;
-    BT_struct = struct();
-    BT_struct.A = [0]; % matrix of a_{ij} values
-    BT_struct.B = [1];% vector of b_i values
-    BT_struct.C = [0]; % vector of c_i values
+    % % forward euler
+    % h_ref = 0.01;
+    % BT_struct = struct();
+    % BT_struct.A = [0]; % matrix of a_{ij} values
+    % BT_struct.B = [1];% vector of b_i values
+    % BT_struct.C = [0]; % vector of c_i values
+    % 
+    % rate_func_in = @(t, V) gravity_rate_func(t,V, orbit_params);
+    % 
+    % [t_list,V_list,h_avg, num_evals] = explicit_RK_fixed_step_integration(rate_func_in,[0,30],V0,h_ref,BT_struct);
+    % x_vals = V_list(1, :);
+    % y_vals = V_list(2, :);
+    % 
+    % 
+    % plot(x_vals, y_vals, "g")
+    % title("Comparing Forward Euler Approx. to True Solution (h = 0.01)")
+    % legend("", "true solution", "forward euler")
 
-    rate_func_in = @(t, V) gravity_rate_func(t,V, orbit_params);
-
-    [t_list,V_list,h_avg, num_evals] = explicit_RK_fixed_step_integration(rate_func_in,[0,30],V0,h_ref,BT_struct);
-    x_vals = V_list(1, :);
-    y_vals = V_list(2, :);
+    % % explicit midpoint
+    % h_ref = 0.01;
+    % BT_struct = struct();
+    % BT_struct.A = [0, 0; 0.5, 0]; % matrix of a_{ij} values
+    % BT_struct.B = [0, 1];% vector of b_i values
+    % BT_struct.C = [0, 0.5]; % vector of c_i values
+    % 
+    % rate_func_in = @(t, V) gravity_rate_func(t,V, orbit_params);
+    % 
+    % [t_list,V_list,h_avg, num_evals] = explicit_RK_fixed_step_integration(rate_func_in,[0,30],V0,h_ref,BT_struct);
+    % x_vals = V_list(1, :);
+    % y_vals = V_list(2, :);
+    % 
+    % 
+    % plot(x_vals, y_vals, "r")
+    % title("Comparing Explicit Midpoint Approx. to True Solution (h = 0.01)")
+    % legend("", "true solution", "explicit midpoint")
     
-
-    plot(x_vals, y_vals, "g")
-
-    % explicit midpoint
-    h_ref = 0.01;
-    BT_struct = struct();
-    BT_struct.A = [0, 0; 0.5, 0]; % matrix of a_{ij} values
-    BT_struct.B = [0, 1];% vector of b_i values
-    BT_struct.C = [0, 0.5]; % vector of c_i values
-
-    rate_func_in = @(t, V) gravity_rate_func(t,V, orbit_params);
-
-    [t_list,V_list,h_avg, num_evals] = explicit_RK_fixed_step_integration(rate_func_in,[0,30],V0,h_ref,BT_struct);
-    x_vals = V_list(1, :);
-    y_vals = V_list(2, :);
-
-
-    plot(x_vals, y_vals, "r")
-
-
-    % heun's method
+    
+    % % heun's method
     h_ref = 0.01;
     BT_struct = struct();
     BT_struct.A = [0, 0; 1, 0]; % matrix of a_{ij} values
@@ -98,7 +102,25 @@ function usage_example()
     [t_list,V_list,h_avg, num_evals] = explicit_RK_fixed_step_integration(rate_func_in,[0,30],V0,h_ref,BT_struct);
     x_vals = V_list(1, :);
     y_vals = V_list(2, :);
+    dx_vals = V_list(3, :);
+    dy_vals = V_list(4, :);
 
 
-    plot(x_vals, y_vals, "b--")
+    plot(x_vals, y_vals, "b")
+    title("Comparing Heun's Approx. to True Solution (h = 0.01)")
+    legend("", "true solution", "heun's method")
+    
+
+    mag_r = sqrt(x_vals.^2 + y_vals.^2);
+    E = (1/2) * orbit_params.m_planet * (dx_vals.^2 + dy_vals.^2) - ...
+        (orbit_params.m_sun * orbit_params.m_planet * orbit_params.G) ./ mag_r;
+    H = orbit_params.m_planet * (x_vals .* dy_vals - y_vals .* dx_vals);
+
+    hold off
+    plot(t_list, E)
+    hold on
+    plot(t_list, H)
+    legend("mechanical energy", "angular momentum")
+
+
 end
