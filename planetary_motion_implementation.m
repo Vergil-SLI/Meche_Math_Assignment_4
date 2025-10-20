@@ -44,7 +44,16 @@ function usage_example()
     t_range = linspace(0,30,100);
     V_list = compute_planetary_motion(t_range,V0,orbit_params);
 
-    % RK approximation calculations
+    % plot actual solution
+    axis equal; axis square;
+    axis([-20,20,-20,20])
+    hold off
+    plot(0,0,'ro','markerfacecolor','r','markersize',5);
+    hold on
+    plot(V_list(:,1),V_list(:,2),'k');
+
+    % RK approximation calculations________________________________________
+    % forward euler
     h_ref = 0.01;
     BT_struct = struct();
     BT_struct.A = [0]; % matrix of a_{ij} values
@@ -54,12 +63,42 @@ function usage_example()
     rate_func_in = @(t, V) gravity_rate_func(t,V, orbit_params);
 
     [t_list,V_list,h_avg, num_evals] = explicit_RK_fixed_step_integration(rate_func_in,[0,30],V0,h_ref,BT_struct);
-
+    x_vals = V_list(1, :);
+    y_vals = V_list(2, :);
     
-    % plot actual solution
-    % axis equal; axis square;
-    % axis([-20,20,-20,20])
-    % hold on
-    % plot(0,0,'ro','markerfacecolor','r','markersize',5);
-    % plot(V_list(:,1),V_list(:,2),'k');
+
+    plot(x_vals, y_vals, "g")
+
+    % explicit midpoint
+    h_ref = 0.01;
+    BT_struct = struct();
+    BT_struct.A = [0, 0; 0.5, 0]; % matrix of a_{ij} values
+    BT_struct.B = [0, 1];% vector of b_i values
+    BT_struct.C = [0, 0.5]; % vector of c_i values
+
+    rate_func_in = @(t, V) gravity_rate_func(t,V, orbit_params);
+
+    [t_list,V_list,h_avg, num_evals] = explicit_RK_fixed_step_integration(rate_func_in,[0,30],V0,h_ref,BT_struct);
+    x_vals = V_list(1, :);
+    y_vals = V_list(2, :);
+
+
+    plot(x_vals, y_vals, "r")
+
+
+    % heun's method
+    h_ref = 0.01;
+    BT_struct = struct();
+    BT_struct.A = [0, 0; 1, 0]; % matrix of a_{ij} values
+    BT_struct.B = [0.5, 0.5];% vector of b_i values
+    BT_struct.C = [0, 1]; % vector of c_i values
+
+    rate_func_in = @(t, V) gravity_rate_func(t,V, orbit_params);
+
+    [t_list,V_list,h_avg, num_evals] = explicit_RK_fixed_step_integration(rate_func_in,[0,30],V0,h_ref,BT_struct);
+    x_vals = V_list(1, :);
+    y_vals = V_list(2, :);
+
+
+    plot(x_vals, y_vals, "b--")
 end

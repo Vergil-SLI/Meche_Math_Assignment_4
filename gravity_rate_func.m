@@ -20,6 +20,7 @@ function dVdt = gravity_rate_func(t,V,orbit_params)
     k = -1* (mp*ms*G)/(mag_r^3);
     A = [0 1; k/mp, 0];
 
-    dVdt = A * X;
+    temp = A * X;
+    dVdt = [temp(1,1); temp(1,2); temp(2,1); temp(2,2)];
 end
 
