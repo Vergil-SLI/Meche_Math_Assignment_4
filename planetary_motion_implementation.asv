@@ -123,9 +123,8 @@ function usage_example()
     legend("mechanical energy", "angular momentum")
 
 
-    % Local truncation error of Euler and Explicit Midpoint Method
-    [h_list,~,expmid_error_list] = local_truncation_error_assignment4(t_ref, hspan, test_function);
-
+    [h_list,analytical_difference,expmid_error_list] = local_truncation_error_assignment4(t_ref, hspan, test_function)
+    
     % Plot log scale graph of errors vs h_list (all the different step sizes used)
     figure;
 
