@@ -72,14 +72,28 @@ function usage_example()
     % legend("", "true solution", "forward euler")
 
     % % explicit midpoint
-    % h_ref = 0.01;
+    h_ref = 0.01;
     % BT_struct = struct();
     % BT_struct.A = [0, 0; 0.5, 0]; % matrix of a_{ij} values
     % BT_struct.B = [0, 1];% vector of b_i values
     % BT_struct.C = [0, 0.5]; % vector of c_i values
+
+    % DormandPrince = struct();
+    % DormandPrince.C = [0, 1/5, 3/10, 4/5, 8/9, 1, 1];
+    % DormandPrince.B = [35/384, 0, 500/1113, 125/192, -2187/6784, 11/84, 0;...
+    % 5179/57600, 0, 7571/16695, 393/640, -92097/339200, 187/2100, 1/40];
+    % DormandPrince.A = [0,0,0,0,0,0,0;
+    %     1/5, 0, 0, 0,0,0,0;...
+    %     3/40, 9/40, 0, 0, 0, 0,0;...
+    %     44/45, -56/15, 32/9, 0, 0, 0,0;...
+    %     19372/6561, -25360/2187, 64448/6561, -212/729, 0, 0,0;...
+    %     9017/3168, -355/33, 46732/5247, 49/176, -5103/18656, 0,0;...
+    %     35/384, 0, 500/1113, 125/192, -2187/6784, 11/84,0];
     % 
-    % rate_func_in = @(t, V) gravity_rate_func(t,V, orbit_params);
-    % 
+    % BT_struct = DormandPrince;
+
+    rate_func_in = @(t, V) gravity_rate_func(t,V, orbit_params);
+
     % [t_list,V_list,h_avg, num_evals] = explicit_RK_fixed_step_integration(rate_func_in,[0,30],V0,h_ref,BT_struct);
     % x_vals = V_list(1, :);
     % y_vals = V_list(2, :);
@@ -91,13 +105,13 @@ function usage_example()
     
     
     % % heun's method
-    h_ref = 0.01;
-    BT_struct = struct();
-    BT_struct.A = [0, 0; 1, 0]; % matrix of a_{ij} values
-    BT_struct.B = [0.5, 0.5];% vector of b_i values
-    BT_struct.C = [0, 1]; % vector of c_i values
-
-    rate_func_in = @(t, V) gravity_rate_func(t,V, orbit_params);
+    % h_ref = 0.01;
+    % BT_struct = struct();
+    % BT_struct.A = [0, 0; 1, 0]; % matrix of a_{ij} values
+    % BT_struct.B = [0.5, 0.5];% vector of b_i values
+    % BT_struct.C = [0, 1]; % vector of c_i values
+    % 
+    % rate_func_in = @(t, V) gravity_rate_func(t,V, orbit_params);
 
     [t_list,V_list,h_avg, num_evals] = explicit_RK_fixed_step_integration(rate_func_in,[0,30],V0,h_ref,BT_struct);
     x_vals = V_list(1, :);
@@ -123,30 +137,41 @@ function usage_example()
     legend("mechanical energy", "angular momentum")
 
     n_samples = 30;
-    h_ref_list = logspace(-5,1, 30);
+    h_ref_list = logspace(-3,1, 30);
     
     num_evals_list = zeros(1, n_samples);
     h_avg_list = zeros(1, n_samples);
     tr_error_list = zeros(1, n_samples);
-    V_list = compute_planetary_motion(t_range,V0,orbit_params);
+    V_list = compute_planetary_motion(t_range,V0,orbit_params)';
 
     for n = 1:length(h_ref_list)
         h_ref = h_ref_list(n);
 
         [t_list, X_list, h_avg, num_evals] = explicit_RK_fixed_step_integration(rate_func_in,[0,30],V0,h_ref,BT_struct);
 
-        tr_error = norm(X_list(end,:) - V_list(end,:));
+        tr_error = norm(X_list(:,end) - V_list(:,end));
         tr_error_list(n) = tr_error;
         h_avg_list(n) = h_avg;
         num_evals_list(n) = num_evals;
     end
 
     filter_params = struct();
-    filter_params
-    [p1,k1] = loglogfit(h_avg_list,tr_error_list, varargin)
+    filter_params.min_yval = 1e-10;
+    filter_params.max_yval = 1e-2;
+    
+    [p1,k1] = loglog_fit(h_avg_list,tr_error_list, filter_params);
+    [p2,k2] = loglog_fit(num_evals_list, tr_error_list, filter_params);
+
+    
+    p1
+    p2
     figure(2)
     loglog(h_avg_list, tr_error_list, 'ro', 'markerfacecolor', 'r');
+    hold on;
+    loglog(h_avg_list, k1*h_avg_list.^p1, 'r-', 'markerfacecolor', 'r');
 
     figure(3)
     loglog(num_evals_list, tr_error_list, 'bo', 'markerfacecolor', 'b');
+    hold on
+    loglog(num_evals_list, k2*num_evals_list.^p2, 'b-', 'markerfacecolor', 'r');
 end
