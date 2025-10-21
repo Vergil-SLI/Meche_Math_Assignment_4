@@ -135,6 +135,7 @@ function usage_example()
     hold on
     plot(t_list, H)
     legend("mechanical energy", "angular momentum")
+    hold off
 
     n_samples = 30;
     h_ref_list = logspace(-3,1, 30);
@@ -145,25 +146,35 @@ function usage_example()
     V_list = compute_planetary_motion(t_range,V0,orbit_params)';
 
     % Local truncation error of Euler and Explicit Midpoint Method
-    [h_list,~,expmid_error_list] = local_truncation_error_assignment4(t_ref, hspan, test_function);
+    t_ref = 0.1;
+    hspan = [-5, -1, 100];
+    [h_list, analytical_difference,expmid_error_list] = local_truncation_error_assignment_4(t_ref, hspan, rate_func_in);
+    
+    % Find line of best fit coefficients and estimate p-value
+    filter_params = struct();
+    filter_params.min_yval = 1e-14;
+    filter_params.max_yval = 1e-5;
+   
+    [ana_p, ~] = loglog_fit(h_list, analytical_difference);
+    fprintf("Local analytical p-value: ");
+    disp(ana_p);
+    [expmid_p,expmid_k] = loglog_fit(h_list,expmid_error_list,filter_params);
+    expmid_y_data = expmid_k.*((h_list.^expmid_p));
+    fprintf("Local explicit Midpoint p-value: ");
+    disp(expmid_p);
 
     % Plot log scale graph of errors vs h_list (all the different step sizes used)
-    figure;
+    figure(1);
+    loglog(h_list,expmid_error_list,'go','MarkerFaceColor','g'); hold on
+    loglog(h_list,expmid_y_data,'k','LineWidth',2); hold on
+    loglog(h_list, analytical_difference, 'r-'); hold on
 
-    loglog(h_list,fel_error_list,'ro','MarkerFaceColor','r'); hold on;
-    %loglog(h_list,fel_y_data,'k','LineWidth',2);
-
-    loglog(h_list,expmid_error_list,'go','MarkerFaceColor','g');
-    %loglog(h_list,expmid_y_data,'k','LineWidth',2); hold on;
-
-    legend('Forward Euler', 'Explicit Midpoint')
-    %loglog(h_list,analytical_difference, 'bo', 'MarkerFaceColor', 'b'); hold off;
-    %legend('Forward Euler','Fit line','Explicit Midpoint', '', 'Analytical Solution')
     % Set axes and legend
     xlim([1e-5 1e0])
-    title("Local error vs. h list for all four methods")
+    title("Local truncation error of explicit midpoint method vs. h list");
     xlabel("Time step sizes");
     ylabel("Error");
+    legend("Explicit Midpoint Method", "Fit line",  "Analytical Difference");
 
     for n = 1:length(h_ref_list)
         h_ref = h_ref_list(n);

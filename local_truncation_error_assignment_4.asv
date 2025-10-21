@@ -43,17 +43,17 @@ function [h_list,analytical_difference,expmid_error_list] = local_truncation_err
     %V0 = [x(0); y(0); dx/dt(0); dy/dt(0)];
     V0 = [x0; y0; dxdt0; dydt0];
     h_list = logspace(hspan(1), hspan(2), hspan(3));
-    
-    analytical_difference = []; % Analytical 
-    expmid_error_list = [];% Explicit Midpoint
+    x_approx_expmid_list = []; % Explicit Midpoint
+
     XA = compute_planetary_motion(t_ref, V0, orbit_params);
     for i = 1:(length(h_list))
         
         [x_approx_expmid,~] = explicit_midpoint_step_assignment_4(test_function,t_ref, XA, h_list(i));
-        x_analytical = compute_planetary_motion(t_ref+h_list(i), V0, orbit_params);
+        x_approx_expmid_list(:,end+1) = x_approx_expmid;
+        %x_analytical_list(end+1) = compute_planetary_motion(t_ref+h_list(i));
 
-        analytical_difference(i) = norm(x_analytical- XA);
-        expmid_error_list(i)  = norm(x_approx_expmid - x_analytical);
     end
+    %analytical_difference = abs(x_analytical_list - XA); % |X(t + h) − X(t)|
+    expmid_error_list = abs(x_approx_expmid_list - x_analytical_list);
 
 end
