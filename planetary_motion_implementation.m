@@ -31,6 +31,7 @@
 
 function usage_example()
     % Actual solution calc
+    clear all
     orbit_params = struct();
     orbit_params.m_sun = 1;
     orbit_params.m_planet = 1;
@@ -45,9 +46,9 @@ function usage_example()
     V_list = compute_planetary_motion(t_range,V0,orbit_params);
 
     % plot actual solution
+    figure(1);
     axis equal; axis square;
     axis([-20,20,-20,20])
-    hold off
     plot(0,0,'ro','markerfacecolor','r','markersize',5);
     hold on
     plot(V_list(:,1),V_list(:,2),'k');
@@ -72,11 +73,11 @@ function usage_example()
     % legend("", "true solution", "forward euler")
 
     % % explicit midpoint
-    h_ref = 0.01;
-    BT_struct = struct();
-    BT_struct.A = [0, 0; 0.5, 0]; % matrix of a_{ij} values
-    BT_struct.B = [0, 1];% vector of b_i values
-    BT_struct.C = [0, 0.5]; % vector of c_i values
+    % h_ref = 0.01;
+    % BT_struct = struct();
+    % BT_struct.A = [0, 0; 0.5, 0]; % matrix of a_{ij} values
+    % BT_struct.B = [0, 1];% vector of b_i values
+    % BT_struct.C = [0, 0.5]; % vector of c_i values
 
     % DormandPrince = struct();
     % DormandPrince.C = [0, 1/5, 3/10, 4/5, 8/9, 1, 1];
@@ -92,7 +93,7 @@ function usage_example()
     % 
     % BT_struct = DormandPrince;
 
-    rate_func_in = @(t, V) gravity_rate_func(t,V, orbit_params);
+    % rate_func_in = @(t, V) gravity_rate_func(t,V, orbit_params);
 
     % [t_list,V_list,h_avg, num_evals] = explicit_RK_fixed_step_integration(rate_func_in,[0,30],V0,h_ref,BT_struct);
     % x_vals = V_list(1, :);
@@ -105,20 +106,19 @@ function usage_example()
     
     
     % % heun's method
-    % h_ref = 0.01;
-    % BT_struct = struct();
-    % BT_struct.A = [0, 0; 1, 0]; % matrix of a_{ij} values
-    % BT_struct.B = [0.5, 0.5];% vector of b_i values
-    % BT_struct.C = [0, 1]; % vector of c_i values
-    % 
-    % rate_func_in = @(t, V) gravity_rate_func(t,V, orbit_params);
+    h_ref = 0.01;
+    BT_struct = struct();
+    BT_struct.A = [0, 0; 1, 0]; % matrix of a_{ij} values
+    BT_struct.B = [0.5, 0.5];% vector of b_i values
+    BT_struct.C = [0, 1]; % vector of c_i values
+
+    rate_func_in = @(t, V) gravity_rate_func(t,V, orbit_params);
 
     [t_list,V_list,h_avg, num_evals] = explicit_RK_fixed_step_integration(rate_func_in,[0,30],V0,h_ref,BT_struct);
     x_vals = V_list(1, :);
     y_vals = V_list(2, :);
     dx_vals = V_list(3, :);
     dy_vals = V_list(4, :);
-
 
     plot(x_vals, y_vals, "b")
     title("Comparing Heun's Approx. to True Solution (h = 0.01)")
@@ -130,7 +130,7 @@ function usage_example()
         (orbit_params.m_sun * orbit_params.m_planet * orbit_params.G) ./ mag_r;
     H = orbit_params.m_planet * (x_vals .* dy_vals - y_vals .* dx_vals);
 
-    hold off
+    figure(2);
     plot(t_list, E)
     hold on
     plot(t_list, H)
@@ -163,8 +163,8 @@ function usage_example()
     fprintf("Local explicit Midpoint p-value: ");
     disp(expmid_p);
 
-    % Plot log scale graph of errors vs h_list (all the different step sizes used)
-    figure(1);
+    % Plot log scale graph of local errors vs h_list (all the different step sizes used)
+    figure(3);
     loglog(h_list,expmid_error_list,'go','MarkerFaceColor','g'); hold on
     loglog(h_list,expmid_y_data,'k','LineWidth',2); hold on
     loglog(h_list, analytical_difference, 'r-'); hold on
@@ -175,6 +175,7 @@ function usage_example()
     xlabel("Time step sizes");
     ylabel("Error");
     legend("Explicit Midpoint Method", "Fit line",  "Analytical Difference");
+
 
     for n = 1:length(h_ref_list)
         h_ref = h_ref_list(n);
@@ -187,6 +188,7 @@ function usage_example()
         num_evals_list(n) = num_evals;
     end
 
+    % create log fit
     filter_params = struct();
     filter_params.min_yval = 1e-10;
     filter_params.max_yval = 1e-2;
@@ -194,17 +196,21 @@ function usage_example()
     [p1,k1] = loglog_fit(h_avg_list,tr_error_list, filter_params);
     [p2,k2] = loglog_fit(num_evals_list, tr_error_list, filter_params);
 
-    
     p1
     p2
-    figure(2)
+    figure(4)
     loglog(h_avg_list, tr_error_list, 'ro', 'markerfacecolor', 'r');
     hold on;
     loglog(h_avg_list, k1*h_avg_list.^p1, 'r-', 'markerfacecolor', 'r');
+    title("Global Truncation error of Midpoint method vs step size")
+    xlabel("Step size h")
+    ylabel("Error")
 
-    figure(3)
+    figure(5)
     loglog(num_evals_list, tr_error_list, 'bo', 'markerfacecolor', 'b');
     hold on
     loglog(num_evals_list, k2*num_evals_list.^p2, 'b-', 'markerfacecolor', 'r');
-
+    title("Global Truncation error of Midpoint method vs num evals")
+    xlabel("num evals")
+    ylabel("Error")
 end
