@@ -10,7 +10,7 @@ for n = 1:length(h_ref_list)
     h_ref = h_ref_list(n);
     V_list = compute_planetary_motion(tspan(1)+h_ref, V0, orbit_params);
 
-    [XB1, XB2, ~] = explicit_RK_step_embedded(my_rate, tspan(1), V0, h_ref, BT_struct);
+    [XB1, XB2, ~] = RK_step_embedded(my_rate, tspan(1), V0, h_ref, BT_struct);
     abs_diff_list(n) = norm(V_list-V0);
     tr_error_list1(n) = norm(XB1 - V_list);
     tr_error_list2(n) = norm(XB2 - V_list);
