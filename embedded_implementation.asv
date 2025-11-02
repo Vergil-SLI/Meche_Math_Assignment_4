@@ -72,10 +72,6 @@ function embedded_implementation()
 
     % Explicit RK variable step
     p = 5.01;
-    error_desired = 0.05;
-    h = 0.01;
-    [XB, num_evals, h_next, redo] = explicit_RK_variable_step(rate_func_in,t,V0,h,DormandPrince, p, error_desired);
-
-    % Explicit RK variable integration
-    [t_list,X_list,h_avg, num_evals] = explicit_RK_variable_step_integration(rate_func_in,tspan,V0,h,DormandPrince,p,error_desired);
+    error_desired = 
+    [XB, num_evals, h_next, redo] = explicit_RK_variable_step(rate_func_in,t,V0,h_ref,DormandPrince,p,error_desired)
 end
