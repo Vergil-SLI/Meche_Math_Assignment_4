@@ -263,4 +263,5 @@ function usage_example()
     xlabel("num evals")
     ylabel("Error")
     hold off
+
 end
