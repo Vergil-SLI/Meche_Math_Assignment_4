@@ -1,6 +1,6 @@
 function embedded_implementation()
     %Local truncation error experiments for embedded method
-    clear all
+    % clear all
     orbit_params = struct();
     orbit_params.m_sun = 1;
     orbit_params.m_planet = 1;
@@ -55,12 +55,13 @@ function embedded_implementation()
     [p1, k1] = loglog_fit(h_ref_list, tr_error_list1, filter_params);
     [p2, k2] = loglog_fit(h_ref_list, tr_error_list2, filter_params);
     
-    %p1
-    %p2
+    p1
+    p2
     
 
-    hold off
-    figure(1);
+    % hold off
+    fig1 = figure(3)
+    set(0,'CurrentFigure',fig1)
     loglog(h_ref_list, tr_error_list1, 'bo', 'markerfacecolor', 'b', 'markersize', 3);
     hold on
     loglog(h_ref_list, tr_error_list2, 'ro', 'markerfacecolor', 'r', 'markersize', 3);
@@ -69,4 +70,28 @@ function embedded_implementation()
     xlabel("Timestep h")
     lgd = legend("XB1 Local Truncation Error", "XB2 Local Truncation Error", "|XB1 - XB2|", "|f(tref + h) - f(t)}");
     lgd.Location = 'southeast';
+
+    [p1, k1] = loglog_fit(h_ref_list, tr_error_list1, filter_params);
+    [p2, k2] = loglog_fit(h_ref_list, tr_error_list2, filter_params);
+    [p3, k3] = loglog_fit(h_ref_list, xb_diff_list, filter_params);
+    
+    p1
+    p2
+    p3
+
+    % hold off
+    fig2 = figure(2);
+    set(0,'CurrentFigure',fig2)
+    loglog(xb_diff_list, tr_error_list1, 'bo', 'markerfacecolor', 'b', 'markersize', 3);
+    hold on
+    loglog(xb_diff_list, tr_error_list2, 'ro', 'markerfacecolor', 'r', 'markersize', 3);
+    lgd = legend("XB1 Local Truncation Error", "XB2 Local Truncation Error");
+    xlabel("|XB1-XB2|")
+    lgd.Location = 'southeast';
+
+    [p4, k4] = loglog_fit(xb_diff_list, tr_error_list1, filter_params);
+    [p5, k5] = loglog_fit(xb_diff_list, tr_error_list2, filter_params);
+
+    p4
+    p5
 end
