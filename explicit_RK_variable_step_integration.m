@@ -1,3 +1,5 @@
+
+
 %Runs numerical integration arbitrary RK method using variable time steps
 %INPUTS:
 %rate_func_in: the function used to compute dXdt. rate_func_in will
@@ -16,17 +18,40 @@
 %X_list: the vector of X, [X0';X1';X2';...;(X_end)'] at each time step
 %h_avg: the average step size
 %num_evals: total number of calls made to rate_func_in during the integration
-function [t_list,X_list,h_avg, num_evals] = explicit_RK_variable_step_integration(rate_func_in,tspan,X0,h_ref,DormandPrince,p,error_desired)
+function [t_list,X_list,h_avg,step_failure_rate, num_evals] = explicit_RK_variable_step_integration(rate_func_in,tspan,X0,h_ref,DormandPrince,p,error_desired)
     t_list = [];
     X_list = [];
+    h_vals = [];
+    attempt_steps = 0;
+    failed_steps = 0;
     num_evals = 0;
+    
+    t_list(1) = tspan(1);
+    X_list(:,1) = X0;
+    i = 2;
+    h = h_ref;
+    h_vals(1) = h_ref;
+
+
     while t_list(end) < tspan(end)
-        [XB1, num_evals, h_next, redo] = explicit_RK_variable_step(rate_func_in, t, X0, h, DormandPrince, p, error_desired);
+        [XB, num_eval_temp, h_next, redo] = explicit_RK_variable_step(rate_func_in, t_list(i-1), X_list(:, i-1), h, DormandPrince, p, error_desired);
+        num_evals = num_evals+num_eval_temp;
         if redo == false
-            X_list(:, i) = XB1;
-            t_list(:, i) = t + h;
+            X_list(:, i) = XB;
+            t_list(i) = t_list(i-1) + h;
+            h = min(h_next, tspan(end)-t_list(i)+10^(-15));
+            attempt_steps = attempt_steps + 1;
+            
+            h_vals(i) = h;
+            i = i+1;
+        else
             h = h_next;
-            num_evals = num_evals + num_eval_temp;
+            failed_steps = failed_steps + 1;
+            attempt_steps = attempt_steps + 1;
         end
+
     end
+
+    h_avg = mean(h_vals);
+    step_failure_rate = failed_steps/attempt_steps;
 end
