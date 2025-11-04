@@ -55,15 +55,15 @@ function usage_example()
     hold off
 
     % RK approximation calculations________________________________________
-    % % forward euler
-    % h_ref = 0.01;
-    % BT_struct = struct();
-    % BT_struct.A = [0]; % matrix of a_{ij} values
-    % BT_struct.B = [1];% vector of b_i values
-    % BT_struct.C = [0]; % vector of c_i values
-    % 
-    % rate_func_in = @(t, V) gravity_rate_func(t,V, orbit_params);
-    % 
+    % forward euler
+    h_ref = 0.01;
+    BT_struct = struct();
+    BT_struct.A = [0]; % matrix of a_{ij} values
+    BT_struct.B = [1];% vector of b_i values
+    BT_struct.C = [0]; % vector of c_i values
+
+    rate_func_in = @(t, V) gravity_rate_func(t,V, orbit_params);
+
     % [t_list,V_list,h_avg, num_evals] = explicit_RK_fixed_step_integration(rate_func_in,[0,30],V0,h_ref,BT_struct);
     % x_vals = V_list(1, :);
     % y_vals = V_list(2, :);
@@ -107,13 +107,13 @@ function usage_example()
     
     
     % % heun's method
-    h_ref = 0.01;
-    BT_struct = struct();
-    BT_struct.A = [0, 0; 1, 0]; % matrix of a_{ij} values
-    BT_struct.B = [0.5, 0.5];% vector of b_i values
-    BT_struct.C = [0, 1]; % vector of c_i values
-
-    rate_func_in = @(t, V) gravity_rate_func(t,V, orbit_params);
+    % h_ref = 0.01;
+    % BT_struct = struct();
+    % BT_struct.A = [0, 0; 1, 0]; % matrix of a_{ij} values
+    % BT_struct.B = [0.5, 0.5];% vector of b_i values
+    % BT_struct.C = [0, 1]; % vector of c_i values
+    % 
+    % rate_func_in = @(t, V) gravity_rate_func(t,V, orbit_params);
 
     [t_list,V_list,h_avg, num_evals] = explicit_RK_fixed_step_integration(rate_func_in,[0,30],V0,h_ref,BT_struct);
     x_vals = V_list(1, :);
@@ -184,10 +184,10 @@ function usage_example()
     % Local truncation error
 
     % Overwrite BT_struct depending on method
-    BT_struct = struct();
-    BT_struct.A = [0, 0; 1, 0]; % matrix of a_{ij} values
-    BT_struct.B = [0.5, 0.5];% vector of b_i values
-    BT_struct.C = [0, 1]; % vector of c_i values
+    % BT_struct = struct();
+    % BT_struct.A = [0, 0; 1, 0]; % matrix of a_{ij} values
+    % BT_struct.B = [0.5, 0.5];% vector of b_i values
+    % BT_struct.C = [0, 1]; % vector of c_i values
 
     t_ref = 0;
     for i = 1:length(h_ref_list)
@@ -208,7 +208,7 @@ function usage_example()
     localp1
 
     [ana_p, ~] = loglog_fit(h_ref_list, analytical_difference);
-    ana_p
+    %ana_p
 
     figure(4)
     loglog(h_ref_list, local_tr_error_list, 'go', 'markerfacecolor', 'g');
@@ -241,6 +241,7 @@ function usage_example()
     filter_params.min_yval = 1e-10;
     filter_params.max_yval = 1e-2;
     
+    tr_error_list
     [p1,k1] = loglog_fit(h_avg_list,tr_error_list, filter_params);
     [p2,k2] = loglog_fit(num_evals_list, tr_error_list, filter_params);
 
@@ -250,7 +251,7 @@ function usage_example()
     loglog(h_avg_list, tr_error_list, 'ro', 'markerfacecolor', 'r');
     hold on;
     loglog(h_avg_list, k1*h_avg_list.^p1, 'r-', 'markerfacecolor', 'r');
-    title("Global Truncation error of Midpoint method vs step size")
+    title("Global Truncation error of Heun's Method vs step size")
     xlabel("Step size h")
     ylabel("Error")
     hold off
@@ -259,7 +260,7 @@ function usage_example()
     loglog(num_evals_list, tr_error_list, 'bo', 'markerfacecolor', 'b');
     hold on
     loglog(num_evals_list, k2*num_evals_list.^p2, 'b-', 'markerfacecolor', 'r');
-    title("Global Truncation error of Midpoint method vs num evals")
+    title("Global Truncation error of Heun's Method vs num evals")
     xlabel("num evals")
     ylabel("Error")
     hold off
